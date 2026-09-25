@@ -1,0 +1,21 @@
+# Local .terraform directories (hidden)
+**/.terraform/*
+
+# The 'terraform' directory in your screenshot containing provider binaries
+terraform/
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Exclude all .tfvars files
+*.tfvars
+*.tfvars.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# OS generated files
+.DS_Store
+Thumbs.db
