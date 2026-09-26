@@ -11,15 +11,19 @@ output "public_ip_address" {
 }
 
 output "ssh_command" {
-  value = "ssh ${var.admin_username}@${azurerm_public_ip.pip.ip_address}"
+  value = "ssh -i /home/apex/.ssh/id_rsa ${var.admin_username}@${azurerm_public_ip.pip.ip_address}"
 }
 
 output "vnet_id" {
   value = azurerm_virtual_network.vnet.id
 }
 
-output "subnet_id" {
-  value = azurerm_subnet.snet.id
+output "subnet_01_id" {
+  value = azurerm_subnet.snet_01.id
+}
+
+output "subnet_02_id" {
+  value = azurerm_subnet.snet_02.id
 }
 
 output "nsg_id" {

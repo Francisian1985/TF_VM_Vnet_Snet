@@ -12,12 +12,20 @@ resource "azurerm_virtual_network" "vnet" {
   address_space       = ["10.0.0.0/16"]
 }
 
-# ---------- Subnet ----------
-resource "azurerm_subnet" "snet" {
-  name                 = "${var.prefix}-snet"
+# ---------- Subnet 01 ----------
+resource "azurerm_subnet" "snet_01" {
+  name                 = "${var.prefix}-snet-01"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
+}
+
+# ---------- Subnet 02 ----------
+resource "azurerm_subnet" "snet_02" {
+  name                 = "${var.prefix}-snet-02"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
 }
 
 # ---------- Network Security Group ----------
@@ -51,9 +59,15 @@ resource "azurerm_network_security_group" "nsg" {
   }
 }
 
-# ---------- Bind NSG to Subnet ----------
-resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
-  subnet_id                 = azurerm_subnet.snet.id
+# ---------- Bind NSG to Subnet 01 ----------
+resource "azurerm_subnet_network_security_group_association" "nsg_assoc_01" {
+  subnet_id                 = azurerm_subnet.snet_01.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
+
+# ---------- Bind NSG to Subnet 02 ----------
+resource "azurerm_subnet_network_security_group_association" "nsg_assoc_02" {
+  subnet_id                 = azurerm_subnet.snet_02.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
@@ -74,7 +88,7 @@ resource "azurerm_network_interface" "nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.snet.id
+    subnet_id                     = azurerm_subnet.snet_01.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.pip.id
   }
@@ -82,12 +96,12 @@ resource "azurerm_network_interface" "nic" {
 
 # ---------- Linux VM (SSH key auth) ----------
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "${var.prefix}-vm"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  size                = var.vm_size
-  zone                = "2"          # <-- ADD THIS LINE
-  admin_username      = var.admin_username
+  name                            = "${var.prefix}-vm"
+  resource_group_name             = azurerm_resource_group.rg.name
+  location                        = azurerm_resource_group.rg.location
+  size                            = var.vm_size
+  zone                            = "2"
+  admin_username                  = var.admin_username
   disable_password_authentication = true
 
   network_interface_ids = [azurerm_network_interface.nic.id]
@@ -109,5 +123,3 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 }
-
-
